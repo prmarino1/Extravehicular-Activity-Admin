@@ -441,6 +441,7 @@ sub get_cves(\%$$$){
     }
     else{return $cve;}
 }
+
 sub rewrite_string($$$){
     my $string=shift;
     my $original=shift;
@@ -464,7 +465,7 @@ sub rewrite_errata_name(\%$){
 
 sub pad_time($){
     my $orig=shift;
-    unless ($orig=~/^\d\d$){
+    unless ($orig=~/^\d\d$/){
 	$orig= '0' . $orig;
     }
     return $orig;
