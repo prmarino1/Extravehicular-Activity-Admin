@@ -462,10 +462,49 @@ sub rewrite_errata_name(\%$){
     return $newname;
 }
 
+sub pad_time($){
+    my $orig=shift;
+    unless ($orig=~/^\d\d$){
+	$orig= '0' . $orig;
+    }
+    return $orig;
+}
+
 sub get_previous(\%$){
     my $options=shift;
     my $previous=shift;
-    warn "not implemented yet\n";
+    my $minute=60;
+    my $hour=3600;
+    my $day=86400;
+    my $week=604800;
+    my $month=2678400; # 31 days better safe than sorry
+    my $year=31622400; # 365 days plus 1 for leap year
+    my $current_time=time;
+    if ($previous=~/^(m|minute)$/i){
+	$current_time=$current_time - $minute;
+    }
+    elsif ($previous=~/^(h|hour)$/i){
+	$current_time=$current_time - $hour;
+    }
+    elsif ($previous=~/^(d|day)$/i){
+	$current_time=$current_time - $day;
+    }
+    elsif ($previous=~/^(w|week)$/i){
+	$current_time=$current_time - $week;
+    }
+    elsif ($previous=~/^(m|month)$/i){
+	$current_time=$current_time - $month;
+    }
+    elsif ($previous=~/^(y|year)$/i){
+	$current_time=$current_time - $year;
+    }
+    else{
+	ruturn 0;
+    }
+    my @time=localtime($current_time);
+    my $old_year=$time[5]+1900
+    my $previousdate=pad_time($time[4]) .  pad_time($time[3]) . $old_year . ' '  pad_time($time[2]) . ':' pad_time($time[1]) . ':' pad_time($time[0]);
+    return $previousdate;
 }
 
 sub auto_sync_erratas(\%$$$$\%\%;$$){
