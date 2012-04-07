@@ -500,11 +500,11 @@ sub get_previous(\%$){
 	$current_time=$current_time - $year;
     }
     else{
-	ruturn 0;
+	return 0;
     }
     my @time=localtime($current_time);
-    my $old_year=$time[5]+1900
-    my $previousdate=pad_time($time[4]) .  pad_time($time[3]) . $old_year . ' '  pad_time($time[2]) . ':' pad_time($time[1]) . ':' pad_time($time[0]);
+    my $old_year=$time[5]+1900;
+    my $previousdate=pad_time($time[4]) .  pad_time($time[3]) . $old_year . ' ' . pad_time($time[2]) . ':' . pad_time($time[1]) . ':' . pad_time($time[0]);
     return $previousdate;
 }
 
