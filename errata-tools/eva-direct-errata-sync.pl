@@ -710,7 +710,7 @@ unless ($options->{'help'}){
 	}
 	else{
 	    print "Source Username:";
-	    my $username=<STDIN>;
+	    my $username=ReadLine;
 	    chomp $username;
 	    $username=~s/\s+//g;
 	    if ($username=~/\w+/){
@@ -728,7 +728,7 @@ unless ($options->{'help'}){
 	}
 	else{
 	    print "Destination Username:";
-	    my $username=<STDIN>;
+	    my $username=ReadLine;
 	    chomp $username;
 	    $username=~s/\s+//g;
 	    if ($username=~/\w+/){
@@ -859,6 +859,8 @@ exit 0;
 
 
 END{
+    # Ensuring that if someone hits Ctrl-C durring a password prompt that their terminal is restored to its original settings.
+    ReadMode 0;
     # Ensuring that nomatter what the script has logged out of the source server cleanly
     if (defined $src_session){
 	spacewalk_logout(%{$options},$src_client,$src_session);
