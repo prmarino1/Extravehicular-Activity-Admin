@@ -324,7 +324,7 @@ sub get_errata_pkg_list(\%$$$){
     else {return \@packages;}
 }
 
-sub find_dst_pacakge_channels(\%$$\@$){
+sub find_dst_package_channels(\%$$\@$){
     my $options=shift;
     my $client=shift;
     my $sessionid=shift;
@@ -398,7 +398,7 @@ sub map_package_channels(\%$$$$$$){
     #print Dumper(@src_package_list) . "\n";
     my $dst_packages={};
     my $dst_channels={};
-    my ($raw_dst_packages,$raw_dst_channels)=find_dst_pacakge_channels(%{$options},$dst_client,$dst_sessionid,@src_package_list,$dst_map);
+    my ($raw_dst_packages,$raw_dst_channels)=find_dst_package_channels(%{$options},$dst_client,$dst_sessionid,@src_package_list,$dst_map);
     for my $key (keys %{$raw_dst_packages}){
 	$dst_packages->{$key}=1;
 	print_verbose(%{$options}," adding package id $key\n");
