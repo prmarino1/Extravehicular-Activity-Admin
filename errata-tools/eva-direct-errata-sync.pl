@@ -465,6 +465,19 @@ sub rewrite_errata_name(\%$){
     return $newname;
 }
 
+sub rewrite_package_release(\%$){
+    my $options=shift;
+    my $release=shift;
+    my $newrelease;
+    if (defined $options->{'rewrite_package_release_from'} and defined $options->{'rewrite_package_release_to'} and $options->{'rewrite_package_release_from'} and $options->{'rewrite_package_release_to'}){
+	$newrelease=rewrite_string($release,$options->{'rewrite_package_release_from'},$options->{'rewrite_package_release_to'});
+    }
+    else{
+	$newrelease=$release;
+    }
+    return $newrelease;
+}
+
 sub pad_time($){
     my $orig=shift;
     unless ($orig=~/^\d\d$/){
