@@ -163,6 +163,8 @@ sub mkchannelsynclist(\%$$$){
     }
     return $package_channels;
 }
+
+# collects a list of erratas that apply to a channel
 sub get_erratas(\%$$$){
     my $options=shift;
     my $client=shift;
@@ -783,20 +785,34 @@ my $dst_map=mkchannelsynclist(%{$options},$dst_client,$dst_session,'dst');
 
 auto_sync_erratas(%{$options},$src_client,$src_session,$dst_client,$dst_session,%{$src_map},%{$dst_map});
 
-
-
 spacewalk_logout(%{$options},$src_client,$src_session);
+
 undef $src_session;
+
 spacewalk_logout(%{$options},$dst_client,$dst_session);
+
 undef $dst_session;
+
 exit 0;
+
+#End main loop
+
+#================================================================================================
+
+#Beginning end Block
 
 
 END{
+    # Ensuring that nomatter what the script has logged out of the source server cleanly
     if (defined $src_session){
 	spacewalk_logout(%{$options},$src_client,$src_session);
     }
+    # Ensuring that nomatter what the script has logged out of the destination server cleanly
     if (defined $dst_session){
 	spacewalk_logout(%{$options},$dst_client,$dst_session);
     }
 }
+
+#End end block
+
+#================================================================================================
