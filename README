@@ -1,0 +1,21 @@
+Extravahicular-Activity-Admin is a set of GPL tools ment to make administrating Spacewalk and RHN Sattellite easier.
+Most of these scripts ar written in Perl as that is the language that the language their developers know best.
+
+  The primary goal of this project is to write new tools that will get either integrated into the main spacewalk code 
+base or inspire the development of other tools possibly written in python as that seems to be the current most popular 
+language for the tools currently being developed in the spacewalk source repositories. These tools should serve to 
+supplement the existing tools functionallity
+
+  The secondary Goal of this project is to identify inefficiencies in the current tools and come up with methodoligies
+to correct those inefficiencies. The new methodoligies should where ever possible utilize the existing Spacewalk, 
+RedHat Satellite, and RHN API's. That being said once more efficient methodoligies are found tested and proven to work
+they should have corrosponding RFE's created or at the very least discussions on the development mailing list for 
+Spacewalk, with the intent of where possible improving the existing tool or only where more practicle replacing it
+with the new tool this project has devised.
+
+  The third goal is to identify shortcommings in the current API's. While the developers for Spacewalk and Redhat 
+Satellite do a fantastic job no one group of developers can think of every thing. This is not a critisizim its just 
+a fact of development which is why GPL projects produce the great code they do. That being said its best to give the 
+core developers and the comunity developers who contribute in their spare time exact, through, consise, and acurete
+specifications when requesting new features. Its also best to include consise use cases as well so their development can
+be prioritized appropriately. 
