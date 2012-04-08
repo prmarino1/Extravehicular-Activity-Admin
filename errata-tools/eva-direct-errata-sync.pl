@@ -554,13 +554,36 @@ sub auto_sync_erratas(\%$$$$\%\%;$$){
     my $begin_date=shift;
     my $end_date=shift;
     my $duplicate={};
+    my $all_destination_channels=$dst_client->call('channel.listSoftwareChannels',$dst_sessionid);
+    while(${$all_destination_channels}){
+	my $channel=shift(@{$all_destination_channels});
+	if (defined $channel->{'label'}){
+	    my $existing_destination_erratas=get_erratas(%{$options},$dst_client,$dst_sessionid,$channel->{'label'});
+	    while (${$existing_destination_erratas}){
+		my $errata=shift(@{$existing_destination_erratas});
+		if (defined $errata->{'advisory_name'} ){
+		    $duplicate->{$errata->{'advisory_name'}}=1;
+		}
+		# Cleaning up ram
+		for my $key (%{$errata}){
+		    delete $errata->{$key};
+		}
+		undef $errata;
+	    }
+	}
+	# Cleaning up ram
+	for my $key (%{$channel}){
+	    delete $channel->{$key};
+	}
+	undef $channel;
+    }
     for my $channel (keys %{$src_map}){
 	#print "found rhn channel $channel status $src_map->{$channel}\n";
 	if ($src_map->{$channel}){
 	    my $src_erratas=get_erratas(%{$options},$src_client,$src_sessionid,$channel);
 	    for my $errata (@{$src_erratas}){
-		# skiping duplicates in the list which occur if an errata applies to multiple channels on the source host
-		unless(defined $duplicate->{$errata->{'advisory_name'}}){
+		# skiping duplicates in the list which occur if an errata applies to multiple channels on the source host or if the Errata already exists on the destination host
+		unless(defined $duplicate->{$errata->{'advisory_name'}} or defined $duplicate->{rewrite_errata_name(%{$options},$errata->{'advisory_name'})}){
 		    $duplicate->{$errata->{'advisory_name'}}=1;
 		    print_verbose(%{$options},"checking if $errata->{'advisory_name'} exists on the destination host\n");
 		    #print Dumper($errata) . "\n";
