@@ -350,6 +350,26 @@ sub find_dst_pacakge_channels(\%$$\@$){
 		}
 	    }
 	}
+	if (defined $options->{'rewrite_package_release_from'} and defined $options->{'rewrite_package_release_to'} and $options->{'rewrite_package_release_from'} and $options->{'rewrite_package_release_to'}){
+	    my $altrelease=rewrite_package_release(%{$options},$package->{'release'});
+	    my $matches=$client->call('packages.findByNvrea',$sessionid,$package->{'name'},$package->{'version'},$altrelease,'',$package->{'arch_label'});
+	    for my $match (@{$matches}){
+		# running in eval because its been know to fail from time to time
+		my $details=0;
+		print_verbose(%{$options},"getting details for package $match->{'name'}\n");
+		$details=eval{$client->call('packages.getDetails',$sessionid,$match->{'id'});};
+		# yes this is two different checks to avoid scarry but meaningless warnings 
+		if ($details){
+		    for my $pkgchannel (@{$details->{'providing_channels'}}){
+			if ($dst_map->{$pkgchannel}){
+			    $channnel_hash->{$pkgchannel}=1;
+			    $id_hash->{$details->{'id'}}=1;
+			}
+		    }
+		}
+	    }
+	    
+	}
     }
     return $id_hash,$channnel_hash;
 }
