@@ -539,7 +539,8 @@ sub get_previous(\%$){
     }
     my @time=localtime($current_time);
     my $old_year=$time[5]+1900;
-    my $previousdate=pad_time($time[4]) .  pad_time($time[3]) . $old_year . ' ' . pad_time($time[2]) . ':' . pad_time($time[1]) . ':' . pad_time($time[0]);
+    my $old_month=pad_time($time[4]) + 1;
+    my $previousdate=$old_year . '-' . $old_month . '-' . pad_time($time[3]) . ' ' . pad_time($time[2]) . ':' . pad_time($time[1]) . ':' . pad_time($time[0]);
     return $previousdate;
 }
 
@@ -555,24 +556,25 @@ sub auto_sync_erratas(\%$$$$\%\%;$$){
     my $end_date=shift;
     my $duplicate={};
     my $all_destination_channels=$dst_client->call('channel.listSoftwareChannels',$dst_sessionid);
-    while(${$all_destination_channels}){
+    while(@{$all_destination_channels}){
 	my $channel=shift(@{$all_destination_channels});
 	if (defined $channel->{'label'}){
+            print_verbose(%{$options},"Getting the errata list for channel $channel->{'label'} on the destination server\n");
 	    my $existing_destination_erratas=get_erratas(%{$options},$dst_client,$dst_sessionid,$channel->{'label'});
-	    while (${$existing_destination_erratas}){
+	    while (@{$existing_destination_erratas}){
 		my $errata=shift(@{$existing_destination_erratas});
 		if (defined $errata->{'advisory_name'} ){
-		    $duplicate->{$errata->{'advisory_name'}}=1;
+		    $duplicate->{"$errata->{'advisory_name'}"}=1;
 		}
 		# Cleaning up ram
-		for my $key (%{$errata}){
+		for my $key (keys %{$errata}){
 		    delete $errata->{$key};
 		}
 		undef $errata;
 	    }
 	}
 	# Cleaning up ram
-	for my $key (%{$channel}){
+	for my $key (keys %{$channel}){
 	    delete $channel->{$key};
 	}
 	undef $channel;
