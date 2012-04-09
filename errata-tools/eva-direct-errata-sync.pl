@@ -834,8 +834,14 @@ unless ($options->{'help'}){
 #Beginning main loop
 
 my ($src_client, $src_session) = spacewalk_login(%{$options},'src');
+unless($src_client and $src_session){
+    die "Failed to login to the source server \"$options->{'src_host'}\"\n";
+}
 
 my ($dst_client, $dst_session) = spacewalk_login(%{$options},'dst');
+unless($dst_client and $dst_session){
+    die "Failed to login to the source server \"$options->{'dst_host'}\"\n";
+}
 
 my $src_map=mkchannelsynclist(%{$options},$src_client,$src_session,'src');
 
