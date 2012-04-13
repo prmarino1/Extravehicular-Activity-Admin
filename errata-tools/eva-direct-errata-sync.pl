@@ -882,3 +882,139 @@ END{
 #End end block
 
 #================================================================================================
+
+#Beginning POD documentation
+
+=head1 NAME
+
+eva-direct-errata-sync.pl - Allows you directly syncronize erratas off of RHN, RHN Satellite, or Spacewalk Server to a Spacewalk or RHN Satellite server
+
+=head1 SYNOPSIS
+
+eva-direct-errata-sync.pl --help
+
+[export ERRATASRCUSER=rhnuser]
+
+[export ERRATADSTUSER=spacewakluser]
+
+[export ERRATASRCPASS=rhnpasswd]
+
+[export ERRATADSTPASS=spacewalkpasswd]
+
+[export ERRATASCR=satellite.example.org]
+
+[export ERRATADST=spacewalk.example.org]
+
+
+eva-direct-errata-sync.pl [--sourceuser=rhnuser]  [--destinationuser=spacewakluser] [--sourcepassword=rhnpasswd] [--destinationpassword=spacewalkpasswd] \
+				       --sourcechannel=source-channel-label --destinationchannel=destination-channel-label [--recursive] [--dryrun] \
+				       [--sourceserver=satellite.example.org] [--destinationserver=spacewalk.example.org] \
+				       [--verbose] [--bugzillaurl=http://bugzilla.example.com] [--rewriteerratanamefrom=RH] \
+				       [--rewriteerratanameto=CENTOSX86_64] [--rewritepackagereleasefrom=el6] [--rewritepackagereleaseto=el6.centos] \
+				       ([--startdate=2012-01-01] [--enddate="2012-01-01 00:00:01"] | [--startfromprevious=(day|week|month|year)] \
+				       [--writejobconfig=/path/to/file]
+
+eva-direct-errata-sync.pl --loadjobconfig=/path/to/file
+
+=head1 DESCRIPTION
+
+=over 4
+
+=item eva-direct-errata-sync.pl - Allows you directly syncronize erratas off of RHN, RHN Satellite, or Spacewalk Server to a Spacewalk or RHN Satellite server. the biggest difference betwean this tool and many of the other errata scripts written prior to this one is that it doesnt utilize piper mail or other mail archives to get the list if erratas, instead it utilizes th RHN API's directly. The second big difference is that it doesnt employ static 1 to 1 channel maps. while it is possilbe to do 1 to 1 channel mapping by only syncing 1 channel at a time this tool can also recursivly search a base channel and all of its children for the packages in the errata and applies it to the effected channels. hopefully this aproch allows for easier management than more traditional configurations.
+
+=back
+
+=head1 SUPPORTED ENVIRONMENT VARIABLES
+
+=head2 ERRATASRCUSER
+
+=over 4
+
+=item ERRATASRCUSER can be set to contain the username on the errata source server rather than specifying it on the command line
+
+=back
+
+=head2 ERRATADSTUSER
+
+=over 4
+
+=item ERRATADSTUSER can be set to contain the username on the errata destination server rather than specifying it on the command line
+
+=back
+
+=head2 ERRATASRCPASS
+
+=over 4
+
+=item ERRATASRCPASS can be set to contain the password on the errata source server rather than specifying it on the command line. This is the prefered method over setting it on the command line because it ensures that other users wont see the password when they run commands like ps.
+
+=back
+
+=head2 ERRATASRCPASS
+
+=over 4
+
+=item ERRATADSTPASS can be set to contain the password on the errata destination server rather than specifying it on the command line. This is the prefered method over setting it on the command line because it ensures that other users wont see the password when they run commands like ps.
+
+=back
+
+=head2 ERRATASCR
+
+=over 4
+
+=item ERRATASCR can be set to contain the hostname of the errata source server rather than specifying it on the command line.
+
+=back
+
+=head2 ERRATADST
+
+=over 4
+
+=item ERRATADST can be set to contain the hostname of the errata destination server rather than specifying it on the command line.
+
+=back
+
+=head1 OPTIONS
+
+=head2 -u rhnuser or --sourceuser rhnuser
+
+=over 4
+
+=item The user name for the errata source server. 
+
+=back
+
+=head2 -u spacewalkuser or --username spacewalkuser
+
+=over 4
+
+=item
+
+=back
+
+
+
+#GetOptions(
+#    'u|sourceuser=s'=>\$options->{'src_user'},
+#    'U|destinationuser=s'=>\$options->{'dst_user'},
+#    's|sourceserver'=>\$options->{'src_host'},
+#    'S|destinationserver'=>\$options->{'dst_host'},
+#    'p|sourcepassword=s'=>\$options->{'src_passwd'},
+#    'P|destinationpassword=s'=>\$options->{'dst_passwd'},
+#    'c|sourcechannel=s'=>\$options->{'src_channel'},
+#    'C|destinationchannel=s'=>\$options->{'dst_channel'},
+#    'r|recursive'=>\$options->{'recursive'},
+#    'n|dryrun'=>\$options->{'dryrun'},
+#    'h|help'=>\$options->{'help'},
+#    'v|verbose'=>\$options->{'verbose'},
+#    'b|bugzillaurl=s'=>\$options->{'bugzilla_url'},
+#    'e|rewriteerratanamefrom=s'=>\$options->{'rewrite_errata_name_from'},
+#    'E|rewriteerratanameto=s'=>\$options->{'rewrite_errata_name_to'},
+#    'rewritepackagereleasefrom=s'=>\$options->{'rewrite_package_release_from'},
+#    'rewritepackagereleaseto=s'=>\$options->{'rewrite_package_release_to'},
+#    'd|startdate=s'=>\$options->{'start_date'},
+#    'D|enddate=s'=>\$options->{'end_date'},
+#    'F|startfromprevious=s'=>\$options->{'start_from_previous'},
+#    'j|loadjobconfig=s'=>\$options->{'batch_config'},
+#    'J|writejobconfig=s'=>\$options->{'write_config'},
+#);
