@@ -909,8 +909,8 @@ eva-direct-errata-sync.pl --help
 eva-direct-errata-sync.pl [--sourceuser=rhnuser]  [--destinationuser=spacewakluser] [--sourcepassword=rhnpasswd] [--destinationpassword=spacewalkpasswd] \
 				       --sourcechannel=source-channel-label --destinationchannel=destination-channel-label [--recursive] [--dryrun] \
 				       [--sourceserver=satellite.example.org] [--destinationserver=spacewalk.example.org] \
-				       [--verbose] [--bugzillaurl=http://bugzilla.example.com] [--rewriteerratanamefrom=RH] \
-				       [--rewriteerratanameto=CENTOSX86_64] [--rewritepackagereleasefrom=el6] [--rewritepackagereleaseto=el6.centos] \
+				       [--verbose] [--bugzillaurl=http://bugzilla.example.com] [--rewriteerratanamefrom=RH \
+				       --rewriteerratanameto=CENTOSX86_64] [--rewritepackagereleasefrom=el6 --rewritepackagereleaseto=el6.centos] \
 				       ([--startdate=2012-01-01] [--enddate="2012-01-01 00:00:01"] | [--startfromprevious=(day|week|month|year)] \
 				       [--writejobconfig=/path/to/file]
 
@@ -980,11 +980,155 @@ eva-direct-errata-sync.pl --loadjobconfig=/path/to/file
 
 =over 4
 
-=item The user name for the errata source server. 
+=item The user name for the errata source server. This option overrides the ERRATASRCUSER environment variable. If neither this option or the environment variable are specified the user will be prompted to specify it.
 
 =back
 
-=head2 -u spacewalkuser or --username spacewalkuser
+=head2 -U spacewalkuser or --destinationuser spacewalkuser
+
+=over 4
+
+=item The user name for the errata destination server. This option overrides the ERRATADSTUSER environment variable. If neither this option or the environment variable are specified the user will be prompted to specify it.
+
+=back
+
+=head2 -p rhnpassword or --sourcepassword rhnpassword
+
+=over 4
+
+=item The password for the errata source server. This option over rides the ERRATASRCPASS environment variable. If neither this option or the environment variable are specified the user will be prompted to specify it.
+
+=back
+
+=head2 -P spacewalkpassword or --destinationpassword spacewalkpassword
+
+=over 4
+
+=item The password for the errata destination server. This option over rides the ERRATADSTPASS environment variable. If neither this option or the environment variable are specified the user will be prompted to specify it.
+
+=back
+
+=head2 -s satellite.example.org or --sourceserver satellite.example.org
+
+=over 4
+
+=item The hostname of the errata source server. This option over rides the ERRATASRC environment variable. If neither this option or the environment variable are specified it defaults to access.redhat.com
+
+=back
+
+=head2 -S spacewalk.example.org or --destinationserver spacewalk.example.org
+
+=over 4
+
+=item The hostname of the errata destination server. This option over rides the ERRATADST environment variable. If neither this option or the environment variable are specified it defaults to localhost
+
+=back
+
+=head2 -s source-channel-label or --sourcechannel source-channel-label
+
+=over 4
+
+=item The name or label of the channel or base channel you want to syncronize the erratas from.
+
+=back
+
+=head2 -C destination-channel-label or --destinationchannel destination-channel-label
+
+=over 4
+
+=item The name or label of the channel or base channel you want to syncronize the erratas to.
+
+=back
+
+=head2 -r or --recursive
+
+=over 4
+
+=item recersivly search a base channels on the source and destination servers for erratas to appicable to the destination.
+
+=back
+
+=head2 -n or --dryrun
+
+=over 4
+
+=item Not yet implemented but reserved for latter use.
+
+=back
+
+=head2 -h or --help
+
+=over 4
+
+=item displays a brief help then exits.
+
+=back
+
+=head2 -v or --verbose
+
+=over 4
+
+=item displays detailed information while executing
+
+=back
+
+=head2 -b http://bugzilla.example.com or --bugzillaurl http://bugzilla.example.com
+
+=over 4
+
+=item The URL to the bugzilla webinterface where the bug tickets are posted. Defaults to https://bugzilla.redhat.com
+
+=back
+
+=head2 -e RH or --rewriteerratanamefrom RH
+
+=over 4
+
+=item The literal sub string from the source errata names you would like to replace.
+
+=back
+
+=head2 -E CENTOSX86_64 or --rewriteerratanameto CENTOSX86_64
+
+=over 4
+
+=item The value to replace the substring from the source errata name with on the destination
+
+=back
+
+=head2 --rewritepackagereleasefrom el6
+
+=over 4
+
+=item In some cases it may be nessisary to match additional release names as well as the original. This option lets you specify a sub string in the release that can be replaced for the additional matches. Note when you use this option with the --rewritepackagereleaseto option both the new release and original release will match the package search on the destination server
+
+=back
+
+=head2 --rewritepackagereleaseto el6.centos
+
+=over 4
+
+=item In some cases it may be nessisary to match additional release names as well as the original. This option lets you specify the new value in the release to match additionalally. Note when you use this option with the --rewritepackagereleasefrom option both the new release and original release will match the package search on the destination server
+
+=back
+
+=head2 -d 2012-01-01 or --startdate "2012-01-01 00:00:01"
+
+=over 4
+
+=item Dont pull erratas from the source older than the specified date or date and time. the default is to pull all erratas that apply to the channel(s) on the source since it was first created. this option confilcts with --startfromprevious
+
+=back
+
+=head2 -D "2012-02-01 00:00:01" or --enddate 2012-02-01
+
+=over 4
+
+=item Dont pull erratas from the source newer than the specified date or date and time. the default is to pull all erratas that apply to the channel(s) on the source untill the current time and date. this option confilcts with --startfromprevious
+
+=back
+
+=head2 -D CENTOSX86_64 or --enddate CENTOSX86_64
 
 =over 4
 
@@ -992,29 +1136,27 @@ eva-direct-errata-sync.pl --loadjobconfig=/path/to/file
 
 =back
 
+=head2 -F day or --startfromprevious week
 
+=over 4
 
-#GetOptions(
-#    'u|sourceuser=s'=>\$options->{'src_user'},
-#    'U|destinationuser=s'=>\$options->{'dst_user'},
-#    's|sourceserver'=>\$options->{'src_host'},
-#    'S|destinationserver'=>\$options->{'dst_host'},
-#    'p|sourcepassword=s'=>\$options->{'src_passwd'},
-#    'P|destinationpassword=s'=>\$options->{'dst_passwd'},
-#    'c|sourcechannel=s'=>\$options->{'src_channel'},
-#    'C|destinationchannel=s'=>\$options->{'dst_channel'},
-#    'r|recursive'=>\$options->{'recursive'},
-#    'n|dryrun'=>\$options->{'dryrun'},
-#    'h|help'=>\$options->{'help'},
-#    'v|verbose'=>\$options->{'verbose'},
-#    'b|bugzillaurl=s'=>\$options->{'bugzilla_url'},
-#    'e|rewriteerratanamefrom=s'=>\$options->{'rewrite_errata_name_from'},
-#    'E|rewriteerratanameto=s'=>\$options->{'rewrite_errata_name_to'},
-#    'rewritepackagereleasefrom=s'=>\$options->{'rewrite_package_release_from'},
-#    'rewritepackagereleaseto=s'=>\$options->{'rewrite_package_release_to'},
-#    'd|startdate=s'=>\$options->{'start_date'},
-#    'D|enddate=s'=>\$options->{'end_date'},
-#    'F|startfromprevious=s'=>\$options->{'start_from_previous'},
-#    'j|loadjobconfig=s'=>\$options->{'batch_config'},
-#    'J|writejobconfig=s'=>\$options->{'write_config'},
-#);
+=item Does the same thing as --startdate except automatically calculates the start date as the previous hour, day, week, month or year.
+
+=back
+
+=head2 -j /some/file or --loadjobconfig /some/file
+
+=over 4
+
+=item Not yet implemented but reserved for latter use..
+
+=back
+
+=head2 -J /some/file or --writejobconfig /some/file
+
+=over 4
+
+=item Not yet implemented but reserved for latter use..
+
+=back
+
