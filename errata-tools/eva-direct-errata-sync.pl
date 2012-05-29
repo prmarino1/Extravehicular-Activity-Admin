@@ -669,8 +669,8 @@ my $options={};
 GetOptions(
     'u|sourceuser=s'=>\$options->{'src_user'},
     'U|destinationuser=s'=>\$options->{'dst_user'},
-    's|sourceserver'=>\$options->{'src_host'},
-    'S|destinationserver'=>\$options->{'dst_host'},
+    's|sourceserver=s'=>\$options->{'src_host'},
+    'S|destinationserver=s'=>\$options->{'dst_host'},
     'p|sourcepassword=s'=>\$options->{'src_passwd'},
     'P|destinationpassword=s'=>\$options->{'dst_passwd'},
     'c|sourcechannel=s'=>\$options->{'src_channel'},
