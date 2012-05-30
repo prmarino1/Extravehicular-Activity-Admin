@@ -585,8 +585,8 @@ sub auto_sync_erratas(\%$$$$\%\%;$$){
 	    my $src_erratas=get_erratas(%{$options},$src_client,$src_sessionid,$channel);
 	    for my $errata (@{$src_erratas}){
 		# skiping duplicates in the list which occur if an errata applies to multiple channels on the source host or if the Errata already exists on the destination host
-		unless(defined $duplicate->{$errata->{'advisory_name'}} or defined $duplicate->{rewrite_errata_name(%{$options},$errata->{'advisory_name'})}){
-		    $duplicate->{$errata->{'advisory_name'}}=1;
+		unless(defined $duplicate->{rewrite_errata_name(%{$options},$errata->{'advisory_name'})}){
+                    $duplicate->{rewrite_errata_name(%{$options},$errata->{'advisory_name'})}=1;
 		    print_verbose(%{$options},"checking if $errata->{'advisory_name'} exists on the destination host\n");
 		    #print Dumper($errata) . "\n";
 		    
