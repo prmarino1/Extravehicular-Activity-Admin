@@ -4,7 +4,7 @@ use Frontier::Client;
 use Getopt::Long qw(:config bundling);
 use Pod::Usage;
 use Term::ReadKey;
-use Data::Dumper;
+#use Data::Dumper;
 
 #================================================================================================
 
