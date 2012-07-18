@@ -1130,14 +1130,6 @@ eva-direct-errata-sync.pl --loadjobconfig=/path/to/file
 
 =back
 
-=head2 -D CENTOSX86_64 or --enddate CENTOSX86_64
-
-=over 4
-
-=item
-
-=back
-
 =head2 -F day or --startfromprevious week
 
 =over 4
