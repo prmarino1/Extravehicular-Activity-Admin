@@ -584,68 +584,70 @@ sub auto_sync_erratas(\%$$$$\%\%;$$){
 	if ($src_map->{$channel}){
 	    my $src_erratas=get_erratas(%{$options},$src_client,$src_sessionid,$channel);
 	    for my $errata (@{$src_erratas}){
-		# skiping duplicates in the list which occur if an errata applies to multiple channels on the source host or if the Errata already exists on the destination host
-		unless(defined $duplicate->{rewrite_errata_name(%{$options},$errata->{'advisory_name'})}){
-                    $duplicate->{rewrite_errata_name(%{$options},$errata->{'advisory_name'})}=1;
-		    print_verbose(%{$options},"checking if $errata->{'advisory_name'} exists on the destination host\n");
-		    #print Dumper($errata) . "\n";
+		if (defined $errata and defined $errata->{'advisory_name'}){
+		    # skiping duplicates in the list which occur if an errata applies to multiple channels on the source host or if the Errata already exists on the destination host
+		    unless(defined $duplicate->{rewrite_errata_name(%{$options},$errata->{'advisory_name'})}){
+                        $duplicate->{rewrite_errata_name(%{$options},$errata->{'advisory_name'})}=1;
+		        print_verbose(%{$options},"checking if $errata->{'advisory_name'} exists on the destination host\n");
+		        #print Dumper($errata) . "\n";
 		    
-		    if (get_errata(%{$options},$dst_client,$dst_sessionid,rewrite_errata_name(%{$options},$errata->{'advisory_name'}))){
-			print_verbose(%{$options},"Skipping errata $errata->{'advisory_name'} because it's already in the destination host\n");
+		        if (get_errata(%{$options},$dst_client,$dst_sessionid,rewrite_errata_name(%{$options},$errata->{'advisory_name'}))){
+			    print_verbose(%{$options},"Skipping errata $errata->{'advisory_name'} because it's already in the destination host\n");
+		        }
+		        else{
+			    print_verbose(%{$options},"getting $errata->{'advisory_name'} from the source\n");
+			    my $errata_details=get_errata(%{$options},$src_client,$src_sessionid,$errata->{'advisory_name'});
+			    my ($packages,$channels)=map_package_channels(%{$options},$src_client,$src_sessionid,$dst_client,$dst_sessionid,$errata->{'advisory_name'},$dst_map);
+			    if (defined ${$packages}[0] and defined ${$channels}[0]){
+			        $errata_details->{'packageId'}=$packages;
+			        $errata_details->{'channelLabel'}=$channels;
+			        $errata_details->{'keyword'}=get_key_words(%{$options},$src_client,$src_sessionid,$errata->{'advisory_name'});
+			        $errata_details->{'bug'}=get_bugs(%{$options},$src_client,$src_sessionid,$errata->{'advisory_name'});
+			        $errata_details->{'cve'}=get_cves(%{$options},$src_client,$src_sessionid,$errata->{'advisory_name'});
+			        #print Dumper($errata_details) . "\n";
+			        my $new_errata_details={
+				    'synopsis'=>$errata_details->{'synopsis'},
+				    'advisory_name'=>rewrite_errata_name(%{$options},$errata->{'advisory_name'}),
+				    'advisory_release'=>1,
+				    'advisory_type'=>$errata_details->{'type'},
+				    'product'=>'Unknown',
+				    'topic'=>$errata_details->{'topic'},
+				    'description'=>$errata_details->{'topic'},
+				    'references'=>$errata_details->{'references'},
+				    'notes'=>$errata_details->{'notes'},
+				    'solution'=>'UPDATE'
+			    
+			        };
+			        my $publication=eval{$dst_client->call('errata.create',$dst_sessionid,$new_errata_details,$errata_details->{'bug'},$errata_details->{'keyword'},$errata_details->{'packageId'},'1',$errata_details->{'channelLabel'});};
+			        if (defined $publication and defined $publication->{'id'}){
+				    print "published $new_errata_details->{'advisory_name'} successfully\n";
+				    if (@{$errata_details->{'cve'}}){
+				        if ($dst_client->call('errata.setDetails',$dst_sessionid,$new_errata_details->{'advisory_name'},{'cves'=>$errata_details->{'cve'}})){
+					    warn "failed to post the CVE's for $new_errata_details->{'advisory_name'}\n";
+				        }
+				        else{
+					    print_verbose(%{$options},"posted CVEs for $new_errata_details->{'advisory_name'}\n");
+				        }
+				    }
+				    else{print_verbose(%{$options},"no CVE's to post $new_errata_details->{'advisory_name'}\n");}
+			        }
+			        else{warn "ERROR: Failed to post $new_errata_details->{'advisory_name'}\n";}
+			        #cleaning up ram
+			        for my $key (keys %{$new_errata_details}){
+				    delete $new_errata_details->{$key};
+			        }
+			    }
+			    else {print_verbose(%{$options},"Skipping errata $errata->{'advisory_name'} because non of its packages could be found in the destination channels\n");}
+			    #cleaning up ram
+			    for my $key (keys %{$errata_details}){
+			        delete $errata_details->{$key};
+			    }
+		    
+		        }
 		    }
 		    else{
-			print_verbose(%{$options},"getting $errata->{'advisory_name'} from the source\n");
-			my $errata_details=get_errata(%{$options},$src_client,$src_sessionid,$errata->{'advisory_name'});
-			my ($packages,$channels)=map_package_channels(%{$options},$src_client,$src_sessionid,$dst_client,$dst_sessionid,$errata->{'advisory_name'},$dst_map);
-			if (defined ${$packages}[0] and defined ${$channels}[0]){
-			    $errata_details->{'packageId'}=$packages;
-			    $errata_details->{'channelLabel'}=$channels;
-			    $errata_details->{'keyword'}=get_key_words(%{$options},$src_client,$src_sessionid,$errata->{'advisory_name'});
-			    $errata_details->{'bug'}=get_bugs(%{$options},$src_client,$src_sessionid,$errata->{'advisory_name'});
-			    $errata_details->{'cve'}=get_cves(%{$options},$src_client,$src_sessionid,$errata->{'advisory_name'});
-			    #print Dumper($errata_details) . "\n";
-			    my $new_errata_details={
-				'synopsis'=>$errata_details->{'synopsis'},
-				'advisory_name'=>rewrite_errata_name(%{$options},$errata->{'advisory_name'}),
-				'advisory_release'=>1,
-				'advisory_type'=>$errata_details->{'type'},
-				'product'=>'Unknown',
-				'topic'=>$errata_details->{'topic'},
-				'description'=>$errata_details->{'topic'},
-				'references'=>$errata_details->{'references'},
-				'notes'=>$errata_details->{'notes'},
-				'solution'=>'UPDATE'
-			    
-			    };
-			    my $publication=eval{$dst_client->call('errata.create',$dst_sessionid,$new_errata_details,$errata_details->{'bug'},$errata_details->{'keyword'},$errata_details->{'packageId'},'1',$errata_details->{'channelLabel'});};
-			    if (defined $publication and defined $publication->{'id'}){
-				print "published $new_errata_details->{'advisory_name'} successfully\n";
-				if (@{$errata_details->{'cve'}}){
-				    if ($dst_client->call('errata.setDetails',$dst_sessionid,$new_errata_details->{'advisory_name'},{'cves'=>$errata_details->{'cve'}})){
-					warn "failed to post the CVE's for $new_errata_details->{'advisory_name'}\n";
-				    }
-				    else{
-					print_verbose(%{$options},"posted CVEs for $new_errata_details->{'advisory_name'}\n");
-				    }
-				}
-				else{print_verbose(%{$options},"no CVE's to post $new_errata_details->{'advisory_name'}\n");}
-			    }
-			    else{warn "ERROR: Failed to post $new_errata_details->{'advisory_name'}\n";}
-			    #cleaning up ram
-			    for my $key (keys %{$new_errata_details}){
-				delete $new_errata_details->{$key};
-			    }
-			}
-			else {print_verbose(%{$options},"Skipping errata $errata->{'advisory_name'} because non of its packages could be found in the destination channels\n");}
-			#cleaning up ram
-			for my $key (keys %{$errata_details}){
-			    delete $errata_details->{$key};
-			}
-		    
+		        print_verbose(%{$options},"Found duplicate entry for errata $errata->{'advisory_name'} skipping\n");
 		    }
-		}
-		else{
-		    print_verbose(%{$options},"Found duplicate entry for errata $errata->{'advisory_name'} skipping\n");
 		}
 		#cleaning up ram
 		for my $key (keys %{$errata}){
