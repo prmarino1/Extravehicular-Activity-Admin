@@ -4,7 +4,7 @@ use Frontier::Client;
 use Getopt::Long qw(:config bundling);
 use Pod::Usage;
 use Term::ReadKey;
-#use Data::Dumper;
+use Data::Dumper;
 
 #================================================================================================
 
@@ -622,8 +622,10 @@ sub auto_sync_erratas(\%$$$$\%\%;$$){
 			        if (defined $publication and defined $publication->{'id'}){
 				    print "published $new_errata_details->{'advisory_name'} successfully\n";
 				    if (@{$errata_details->{'cve'}}){
-				        if ($dst_client->call('errata.setDetails',$dst_sessionid,$new_errata_details->{'advisory_name'},{'cves'=>$errata_details->{'cve'}})){
+					my $cve_post=eval{$dst_client->call('errata.setDetails',$dst_sessionid,$new_errata_details->{'advisory_name'},{'cves'=>$errata_details->{'cve'}})};
+				        unless ($cve_post){
 					    warn "failed to post the CVE's for $new_errata_details->{'advisory_name'}\n";
+                                            warn Dumper($errata_details->{'cve'}) . "\n";
 				        }
 				        else{
 					    print_verbose(%{$options},"posted CVEs for $new_errata_details->{'advisory_name'}\n");
@@ -826,6 +828,9 @@ unless ($options->{'help'}){
 	}
     }
 }
+else{
+	pod2usage(-exitval =>1 , -verbose=>0)
+}
 
 
 
@@ -908,13 +913,18 @@ eva-direct-errata-sync.pl --help
 [export ERRATADST=spacewalk.example.org]
 
 
-eva-direct-errata-sync.pl [--sourceuser=rhnuser]  [--destinationuser=spacewakluser] [--sourcepassword=rhnpasswd] [--destinationpassword=spacewalkpasswd] \
-				       --sourcechannel=source-channel-label --destinationchannel=destination-channel-label [--recursive] [--dryrun] \
-				       [--sourceserver=satellite.example.org] [--destinationserver=spacewalk.example.org] \
-				       [--verbose] [--bugzillaurl=http://bugzilla.example.com] [--rewriteerratanamefrom=RH \
-				       --rewriteerratanameto=CENTOSX86_64] [--rewritepackagereleasefrom=el6 --rewritepackagereleaseto=el6.centos] \
-				       ([--startdate=2012-01-01] [--enddate="2012-01-01 00:00:01"] | [--startfromprevious=(day|week|month|year)] \
-				       [--writejobconfig=/path/to/file]
+eva-direct-errata-sync.pl [--sourceuser=rhnuser] \ 
+	[--destinationuser=spacewakluser] [--sourcepassword=rhnpasswd] \
+	[--destinationpassword=spacewalkpasswd] \ 
+	--sourcechannel=source-channel-label \
+	--destinationchannel=destination-channel-label [--recursive] \
+	[--dryrun] [--sourceserver=satellite.example.org] \
+	[--destinationserver=spacewalk.example.org] [--verbose] \
+	[--bugzillaurl=http://bugzilla.example.com] \
+	[--rewriteerratanamefrom=RH --rewriteerratanameto=CENTOSX86_64]  \
+	[--rewritepackagereleasefrom=el6 --rewritepackagereleaseto=el6.centos] \
+	([--startdate=2012-01-01] [--enddate="2012-01-01 00:00:01"] | [--startfromprevious=(day|week|month|year)]) \
+	[--writejobconfig=/path/to/file]
 
 eva-direct-errata-sync.pl --loadjobconfig=/path/to/file
 
