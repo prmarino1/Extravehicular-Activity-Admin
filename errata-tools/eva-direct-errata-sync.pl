@@ -4,7 +4,7 @@ use Frontier::Client;
 use Getopt::Long qw(:config bundling);
 use Pod::Usage;
 use Term::ReadKey;
-use Data::Dumper;
+#use Data::Dumper;
 
 #================================================================================================
 
@@ -625,7 +625,7 @@ sub auto_sync_erratas(\%$$$$\%\%;$$){
 					my $cve_post=eval{$dst_client->call('errata.setDetails',$dst_sessionid,$new_errata_details->{'advisory_name'},{'cves'=>$errata_details->{'cve'}})};
 				        unless ($cve_post){
 					    warn "failed to post the CVE's for $new_errata_details->{'advisory_name'}\n";
-                                            warn Dumper($errata_details->{'cve'}) . "\n";
+                                            #warn Dumper($errata_details->{'cve'}) . "\n";
 				        }
 				        else{
 					    print_verbose(%{$options},"posted CVEs for $new_errata_details->{'advisory_name'}\n");
