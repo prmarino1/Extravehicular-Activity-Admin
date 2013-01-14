@@ -351,7 +351,7 @@ sub find_dst_package_channels(\%$$\@$){
 	    }
 	}
 	if (defined $options->{'rewrite_package_release_from'} and defined $options->{'rewrite_package_release_to'} and $options->{'rewrite_package_release_from'} and $options->{'rewrite_package_release_to'}){
-	    my $altrelease=rewrite_package_release(%{$options},$package->{'release'});
+	    my $altrelease=rewrite_package_release($options,$package->{'release'});
 	    my $matches=$client->call('packages.findByNvrea',$sessionid,$package->{'name'},$package->{'version'},$altrelease,'',$package->{'arch_label'});
 	    for my $match (@{$matches}){
 		# running in eval because its been know to fail from time to time
@@ -429,8 +429,8 @@ sub get_bugs(\%$$$){
     my $sessionid=shift;
     my $advisory_name=shift;
     my $bugzilla='';
-    if ($options->{bugzilla_url}){
-	$bugzilla=$options->{bugzilla_url} . 'show_bug.cgi?id=';
+    if ($options->{'bugzilla_url'}){
+	$bugzilla=$options->{'bugzilla_url'} . 'show_bug.cgi?id=';
     }
     my $raw_bugs=$client->call('errata.bugzillaFixes',$sessionid,$advisory_name);
     my @bugs;
@@ -817,6 +817,7 @@ unless ($options->{'help'}){
     }
     unless($options->{'bugzilla_url'}){
 	print_verbose(%{$options},"No bugzilla url specified setting to the default \"https://bugzilla.redhat.com/\"\n");
+	$options->{'bugzilla_url'}='https://bugzilla.redhat.com/';
     }
     if ($options->{'start_from_previous'}){
 	if ($options->{'start_date'}){
