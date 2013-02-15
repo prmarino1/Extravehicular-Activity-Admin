@@ -612,7 +612,7 @@ sub auto_sync_erratas(\%$$$$\%\%;$$){
 				    'advisory_type'=>$errata_details->{'type'},
 				    'product'=>'Unknown',
 				    'topic'=>$errata_details->{'topic'},
-				    'description'=>$errata_details->{'topic'},
+				    'description'=>$errata_details->{'description'},
 				    'references'=>$errata_details->{'references'},
 				    'notes'=>$errata_details->{'notes'},
 				    'solution'=>'UPDATE'
